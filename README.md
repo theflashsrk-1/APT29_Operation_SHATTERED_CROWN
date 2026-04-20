@@ -196,13 +196,6 @@ Setup is done via PowerShell scripts on each machine. Run in this order:
 6. M1-DC02 (again) — Run post-join script: configure RBCD ACL on DC02 computer object
 ```
 
-Per-machine:
-```powershell
-# On each VM (as Administrator):
-Set-ExecutionPolicy Bypass -Scope Process -Force
-.\setup.ps1
-```
-
 ---
 
 ## OpenStack Network Assignment
