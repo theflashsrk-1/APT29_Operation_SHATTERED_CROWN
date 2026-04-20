@@ -1,0 +1,86 @@
+- name: 'Scenario 2 - Delegation Nightmare: Silver Ticket Forgery for MSSQL and xp_cmdshell Execution (SRV07-SQL)'
+  description: >-
+    Simulates abuse of a recovered service-account secret to target the SQL tier
+    through Kerberos service-ticket forgery against the MSSQL service on SRV07-SQL.
+    The intended objective is to obtain high-privilege execution in the context of
+    the SQL Server service and validate access to database and operating-system
+    resources exposed through the SQL platform. From a defensive perspective, this
+    step is notable because service-ticket forgery may reduce or bypass expected
+    domain-controller telemetry, shifting visibility toward host-side SQL activity,
+    local logons, and operating-system process creation originating from the SQL
+    service context.
+  tactic: lateral-movement
+  technique_id: T1558.002
+  technique_name: 'Steal or Forge Kerberos Tickets: Silver Ticket'
+  singleton: false
+  repeatable: false
+  delete_payload: false
+  executors:
+  - name: psh
+    platform: windows
+    command: |-
+      echo "[*] Scenario 2 preflight: Silver Ticket / MSSQL path validation"
+      echo "[*] Service SPN of interest: MSSQLSvc/SRV07-SQL.cyberange.local:1433"
+      echo "[*] Service account context: svc_sql"
+      echo "[*] Expected database: CorpData"
+      echo
+
+      for host in SRV07-SQL.cyberange.local DC02.cyberange.local; do
+        echo "[*] Resolving $host"
+        getent hosts "$host" 2>/dev/null || nslookup "$host" 2>/dev/null || echo "[!] DNS lookup failed for $host"
+        echo
+      done
+
+      if command -v nc >/dev/null 2>&1; then
+        echo "[*] Port checks"
+        nc -zvw3 SRV07-SQL.cyberange.local 1433 2>&1 || true
+        nc -zvw3 SRV07-SQL.cyberange.local 445 2>&1 || true
+        nc -zvw3 SRV07-SQL.cyberange.local 5985 2>&1 || true
+        nc -zvw3 DC02.cyberange.local 88 2>&1 || true
+      else
+        echo "[*] nc not present, using ping as fallback"
+        ping -c 1 SRV07-SQL.cyberange.local 2>/dev/null || true
+        ping -c 1 DC02.cyberange.local 2>/dev/null || true
+      fi
+
+      echo
+      echo "[*] Ticket-forgery simulation complete (no ticket material created, no SQL login attempted)"
+    code: null
+    language: null
+    build_target: null
+    payloads: []
+    uploads: []
+    timeout: 180
+    parsers: []
+    cleanup: []
+    variations: []
+    additional_info:
+      target_host: SRV07-SQL.cyberange.local
+      target_ip_suffix: .50
+      domain: cyberange.local
+      domain_sid: 'Obtain via lookupsid.py or domain enumeration'
+      service_account:
+        username: svc_sql
+        nt_hash: 'Derived from password SqlStr0ng!Pass99'
+        spn_for_ticket: 'MSSQLSvc/SRV07-SQL.cyberange.local:1433'
+        is_local_admin: true
+      silver_ticket_details:
+        ticket_type: TGS (no KDC interaction)
+        signed_with: svc_sql NT hash
+        kdc_not_contacted: true
+        no_dc_log_generated: true
+        impersonated_user_in_pac: Administrator
+      sql_access:
+        port: 1433
+        instance: MSSQLSERVER
+        effective_role: sysadmin
+        xp_cmdshell_enabled: true
+        database: CorpData
+        sensitive_table: 'Employees (SSNs, Salaries)'
+      code_execution_context: 'CYBERANGE\svc_sql (local Administrator on SRV07-SQL)'
+      detection_events:
+        - '4624 on SRV07-SQL - Logon for Administrator with NO matching 4769 on DC02'
+        - '4688 on SRV07-SQL - cmd.exe child of sqlservr.exe'
+        - 'No 4769 on DC02 (Silver Ticket bypasses KDC entirely)'
+  requirements: []
+  id: c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4

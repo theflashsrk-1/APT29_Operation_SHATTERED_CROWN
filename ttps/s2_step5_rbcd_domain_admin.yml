@@ -1,0 +1,83 @@
+- name: 'Scenario 2 - Delegation Nightmare: Resource-Based Constrained Delegation (RBCD) Abuse for Domain Compromise (DC02)'
+  description: >-
+    Represents the final privilege-escalation stage in which control of SRV07-SQL
+    is used to exploit a misconfigured Active Directory ACL affecting the DC02
+    computer object. In the intended attack chain, the operator leverages that
+    access to prepare a Resource-Based Constrained Delegation path and obtain
+    delegated authentication to the domain controller as a highly privileged user.
+    This mirrors modern domain compromise tradecraft that abuses machine-account
+    creation, directory attribute writes, and Kerberos service delegation to reach
+    domain-admin-equivalent access. Expected defensive signals include computer
+    account creation, directory attribute modification, and unusual service-ticket
+    activity involving DC02.
+  tactic: privilege-escalation
+  technique_id: T1134.001
+  technique_name: 'Access Token Manipulation: Token Impersonation/Theft'
+  singleton: false
+  repeatable: false
+  delete_payload: false
+  executors:
+  - name: psh
+    platform: windows
+    command: |-
+      echo "[*] Scenario 2 preflight: RBCD path validation"
+      echo "[*] Source machine account: SRV07-SQL$"
+      echo "[*] Target AD object: DC02 computer object"
+      echo "[*] Attribute of interest: msDS-AllowedToActOnBehalfOfOtherIdentity"
+      echo "[*] MachineAccountQuota assumption: 10"
+      echo
+
+      for host in SRV07-SQL.cyberange.local DC02.cyberange.local; do
+        echo "[*] Resolving $host"
+        getent hosts "$host" 2>/dev/null || nslookup "$host" 2>/dev/null || echo "[!] DNS lookup failed for $host"
+        echo
+      done
+
+      if command -v nc >/dev/null 2>&1; then
+        echo "[*] Port checks"
+        nc -zvw3 DC02.cyberange.local 88 2>&1 || true
+        nc -zvw3 DC02.cyberange.local 389 2>&1 || true
+        nc -zvw3 DC02.cyberange.local 445 2>&1 || true
+        nc -zvw3 SRV07-SQL.cyberange.local 445 2>&1 || true
+      else
+        echo "[*] nc not present, using ping as fallback"
+        ping -c 1 DC02.cyberange.local 2>/dev/null || true
+        ping -c 1 SRV07-SQL.cyberange.local 2>/dev/null || true
+      fi
+
+      echo
+      echo "[*] Simulation complete (no LDAP writes, no machine-account creation, no S4U activity)"
+    code: null
+    language: null
+    build_target: null
+    payloads: []
+    uploads: []
+    timeout: 300
+    parsers: []
+    cleanup: []
+    variations: []
+    additional_info:
+      target_host: DC02.cyberange.local
+      target_ip_suffix: .10
+      domain: cyberange.local
+      source_host: SRV07-SQL.cyberange.local
+      prerequisite_acl:
+        subject: 'SRV07-SQL$ (machine account)'
+        right: GenericWrite
+        target_object: 'DC02 computer object in AD'
+      machine_account_quota: 10
+      attack_steps:
+        step1: Create attacker-controlled machine account (e.g. EVILMACHINE$)
+        step2: Write EVILMACHINE$ SID into DC02 msDS-AllowedToActOnBehalfOfOtherIdentity
+        step3: S4U2Self — EVILMACHINE$ requests ticket for itself as Administrator
+        step4: S4U2Proxy — Convert to cifs/DC02.cyberange.local service ticket
+        step5: Use ticket for DCSync or WinRM on DC02 as Administrator
+      outcome: Full domain compromise — all AD hashes extracted
+      detection_events:
+        - '4741 on DC02 - New computer account created (EVILMACHINE$)'
+        - '5136 on DC02 - msDS-AllowedToActOnBehalfOfOtherIdentity attribute written on DC02'
+        - '4769 on DC02 - S4U service ticket requests (transited services present)'
+        - '4624 on DC02 - Logon as Administrator'
+        - '4662 on DC02 - DCSync replication if chosen for final step'
+  requirements: []
+  id: d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5

@@ -1,0 +1,81 @@
+- name: 'Scenario 2 - Delegation Nightmare: S4U2Self and S4U2Proxy Constrained Delegation Abuse (SRV05-API)'
+  description: >-
+    Represents operator validation of a constrained delegation pathway after
+    obtaining control of the svc_web account. The step is intended to mirror abuse
+    of protocol transition and delegated service access to obtain a ticket for
+    HTTP/SRV05-API on behalf of a more privileged identity, enabling administrative
+    access to the API tier without interactive logon from the impersonated user.
+    Relevant telemetry would include Kerberos service ticket activity with
+    delegation characteristics on DC02 and a corresponding remote logon to
+    SRV05-API under a higher-privilege identity.
+  tactic: privilege-escalation
+  technique_id: T1134.001
+  technique_name: 'Access Token Manipulation: Token Impersonation/Theft'
+  singleton: false
+  repeatable: false
+  delete_payload: false
+  executors:
+  - name: psh
+    platform: windows
+    command: |-
+      echo "[*] Scenario 2 preflight: constrained delegation path validation"
+      echo "[*] Compromised account context: svc_web"
+      echo "[*] Delegation target SPN: HTTP/SRV05-API.cyberange.local"
+      echo "[*] Impersonation target: backup_admin"
+      echo
+
+      for host in DC02.cyberange.local SRV05-API.cyberange.local; do
+        echo "[*] Resolving $host"
+        getent hosts "$host" 2>/dev/null || nslookup "$host" 2>/dev/null || echo "[!] DNS lookup failed for $host"
+        echo
+      done
+
+      if command -v nc >/dev/null 2>&1; then
+        echo "[*] Port checks"
+        nc -zvw3 DC02.cyberange.local 88 2>&1 || true
+        nc -zvw3 DC02.cyberange.local 389 2>&1 || true
+        nc -zvw3 SRV05-API.cyberange.local 5985 2>&1 || true
+        nc -zvw3 SRV05-API.cyberange.local 445 2>&1 || true
+      else
+        echo "[*] nc not present, using ping as fallback"
+        ping -c 1 DC02.cyberange.local 2>/dev/null || true
+        ping -c 1 SRV05-API.cyberange.local 2>/dev/null || true
+      fi
+
+      echo
+      echo "[*] S4U2Self/S4U2Proxy simulation complete (no ticket requests generated)"
+    code: null
+    language: null
+    build_target: null
+    payloads: []
+    uploads: []
+    timeout: 180
+    parsers: []
+    cleanup: []
+    variations: []
+    additional_info:
+      target_host: SRV05-API.cyberange.local
+      target_ip_suffix: .30
+      dc_host: DC02.cyberange.local
+      domain: cyberange.local
+      compromised_account:
+        username: svc_web
+        password: 'Summer2025!'
+        uac_flag: TRUSTED_TO_AUTH_FOR_DELEGATION
+        allowed_to_delegate_to:
+          - 'HTTP/SRV05-API.cyberange.local'
+          - 'HTTP/SRV05-API'
+      impersonated_account:
+        username: backup_admin
+        description: Domain Admin — cached in LSASS on SRV06-OPT
+      s4u_flow:
+        s4u2self: svc_web requests service ticket for itself as backup_admin
+        s4u2proxy: Convert to HTTP/SRV05-API ticket (forwardable)
+      access_gained: WinRM session on SRV05-API as backup_admin
+      spn_on_target: 'HTTP/SRV05-API.cyberange.local (on machine account SRV05-API$)'
+      winrm_port: 5985
+      detection_events:
+        - '4769 on DC02 - Service ticket with delegation flag (transited services present)'
+        - '4624 on SRV05-API - Logon type 3 for backup_admin from attacker IP'
+  requirements: []
+  id: a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2

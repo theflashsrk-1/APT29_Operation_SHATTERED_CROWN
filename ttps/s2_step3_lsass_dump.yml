@@ -1,0 +1,95 @@
+- name: 'Scenario 2 - Delegation Nightmare: WinRM Lateral Movement and LSASS Credential Dumping (SRV06-OPT)'
+  description: >-
+    Models post-delegation credential access on SRV06-OPT by targeting a host
+    expected to contain valuable service-account material in memory. In the intended
+    intrusion path, the operator laterally reaches the operations server using
+    elevated access, then inspects LSASS-resident credentials to recover reusable
+    authentication material for the downstream SQL tier. This stage reflects common
+    adversary behaviour in enterprise environments where operational servers cache
+    privileged or service-bound logons. Key detection opportunities include
+    sensitive process access, command-line auditing, and abnormal use of tools or
+    processes associated with memory inspection.
+  tactic: credential-access
+  technique_id: T1003.001
+  technique_name: 'OS Credential Dumping: LSASS Memory'
+  singleton: false
+  repeatable: false
+  delete_payload: false
+  executors:
+  - name: psh
+    platform: windows
+    command: |-
+      $ErrorActionPreference = "SilentlyContinue"
+
+      Write-Host "[*] Inspecting SRV06-OPT credential-cache conditions" -ForegroundColor Cyan
+
+      Write-Host "`n[*] LSASS-related protection settings" -ForegroundColor Yellow
+      Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name RunAsPPL -ErrorAction SilentlyContinue |
+        Select-Object RunAsPPL | Format-List | Out-String | Write-Host
+      Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" -Name UseLogonCredential -ErrorAction SilentlyContinue |
+        Select-Object UseLogonCredential | Format-List | Out-String | Write-Host
+      Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -ErrorAction SilentlyContinue |
+        Format-List | Out-String | Write-Host
+
+      Write-Host "`n[*] Scheduled tasks expected to hold cached sessions" -ForegroundColor Yellow
+      "CorpOpsHealthMonitor","CorpBackupAgent" | ForEach-Object {
+        Get-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue |
+          Select-Object TaskName, State, TaskPath |
+          Format-Table -AutoSize | Out-String | Write-Host
+        Get-ScheduledTaskInfo -TaskName $_ -ErrorAction SilentlyContinue |
+          Select-Object LastRunTime, LastTaskResult, NextRunTime |
+          Format-Table -AutoSize | Out-String | Write-Host
+      }
+
+      Write-Host "`n[*] LSASS process metadata" -ForegroundColor Yellow
+      Get-CimInstance Win32_Process -Filter "Name='lsass.exe'" |
+        Select-Object Name, ProcessId, ExecutablePath |
+        Format-Table -AutoSize | Out-String | Write-Host
+
+      Write-Host "`n[*] WinRM listener state" -ForegroundColor Yellow
+      Get-Service WinRM -ErrorAction SilentlyContinue |
+        Select-Object Name, Status, StartType |
+        Format-Table -AutoSize | Out-String | Write-Host
+      Get-NetTCPConnection -State Listen -LocalPort 5985 -ErrorAction SilentlyContinue |
+        Select-Object LocalAddress, LocalPort, State |
+        Format-Table -AutoSize | Out-String | Write-Host
+    code: null
+    language: null
+    build_target: null
+    payloads: []
+    uploads: []
+    timeout: 180
+    parsers: []
+    cleanup: []
+    variations: []
+    additional_info:
+      target_host: SRV06-OPT.cyberange.local
+      target_ip_suffix: .40
+      domain: cyberange.local
+      access_method: WinRM (port 5985) as backup_admin
+      lsass_protections:
+        RunAsPPL: 0
+        CredentialGuard: disabled
+        WDigest_UseLogonCredential: 1
+      cached_sessions:
+        - task_name: CorpOpsHealthMonitor
+          account: 'CYBERANGE\svc_sql'
+          logon_type: 4 (Batch)
+          target_of_dump: true
+        - task_name: CorpBackupAgent
+          account: 'CYBERANGE\backup_admin'
+          logon_type: 4 (Batch)
+          target_of_dump: true
+      extracted_account:
+        username: svc_sql
+        password: 'SqlStr0ng!Pass99'
+        spns:
+          - 'MSSQLSvc/SRV07-SQL.cyberange.local:1433'
+          - 'MSSQLSvc/SRV07-SQL.cyberange.local'
+        significance: MSSQL service account on SRV07-SQL — enables Silver Ticket
+      detection_events:
+        - '4624 on SRV06-OPT - Logon type 3 for backup_admin'
+        - 'Sysmon Event 10 - LSASS process memory access'
+        - '4688 on SRV06-OPT - Suspicious process creation (dump utility)'
+  requirements: []
+  id: b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
