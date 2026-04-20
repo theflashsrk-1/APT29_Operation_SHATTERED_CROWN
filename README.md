@@ -214,7 +214,7 @@ All 5 machines reside on a single flat network segment. The DC provides DNS and 
 
 ## APT29 Technique Mapping
 
-This range emulates a subset of APT29 (Midnight Blizzard) tradecraft observed in the 2024 Microsoft corporate breach and historical SolarWinds/NOBELIUM campaigns. APT29 is attributed to Russia's Foreign Intelligence Service (SVR) and is known for:
+This range is a subset of APT29 (Midnight Blizzard) tradecraft observed in the 2024 Microsoft corporate breach and historical SolarWinds/NOBELIUM campaigns. APT29 is attributed to Russia's Foreign Intelligence Service (SVR) and is known for:
 
 - Large-scale password spraying against service accounts (CISA AA24-057A)
 - Kerberos ticket manipulation for lateral movement (Mandiant "No Easy Breach")
@@ -229,17 +229,3 @@ This range emulates a subset of APT29 (Midnight Blizzard) tradecraft observed in
 | 4 | Silver Ticket | T1558.002 | Capability inference — APT29 tooling supports Kerberos forgery |
 | 5 | Account Manipulation | T1098 | NOBELIUM — modification of trust/delegation attributes |
 
----
-
-## GitHub Push
-
-```bash
-git init Red-Range2
-cd Red-Range2
-cp -r /path/to/extracted/* .
-git add .
-git commit -m "Operation SHATTERED CROWN - Initial Release"
-git remote add origin https://github.com/hacktifytechnologies/Red-Range2.git
-git branch -M main
-git push -u origin main
-```
