@@ -16,7 +16,7 @@
      │  │  M1: DC02                                   │          │
      │  │  Windows Server 2019                        │          │
      │  │  AD DS + DNS + WEF Collector                │          │
-     │  │  Ports: 53, 88, 135, 389, 445, 636, 5985   │          │
+     │  │  Ports: 53, 88, 135, 389, 445, 636, 5985    │          │
      │  │  RBCD vuln: SRV07-SQL$ GenericWrite on DC02 │          │
      │  │                                             │          │
      │  └─────────────────────────────────────────────┘          │
@@ -26,7 +26,7 @@
      │  │  M2: SRV04-WEB                           │             │
      │  │  Windows Server 2019                     │             │
      │  │  IIS — Corporate Web Portal              │             │
-     │  │  App Pool: CYBERANGE\svc_web              │             │
+     │  │  App Pool: CYBERANGE\svc_web             │             │
      │  │  Port 80 — Windows Authentication        │             │
      │  │  SPRAY TARGET                            │             │
      │  │                                          │             │
@@ -60,7 +60,7 @@
      │  │  M5: SRV07-SQL                           │             │
      │  │  Windows Server 2019                     │             │
      │  │  MSSQL Server (SQLEXPRESS)               │             │
-     │  │  Service: CYBERANGE\svc_sql               │             │
+     │  │  Service: CYBERANGE\svc_sql              │             │
      │  │  xp_cmdshell ON, SeImpersonatePrivilege  │             │
      │  │  Port 1433 — SQL                         │             │
      │  │  SRV07-SQL$ has GenericWrite on DC02     │             │
@@ -75,9 +75,9 @@
 
 ```
      ┌─────────────┐
-     │  ATTACKER    │
-     │  (Kali)      │
-     └──────┬───────┘
+     │  ATTACKER   │
+     │  (Kali)     │
+     └──────┬──────┘
             │
             │ 1. Password Spray
             │    → svc_web:Summer2025!
@@ -99,10 +99,10 @@
                                     │ 4. Silver Ticket (svc_sql hash)
                                     ▼
                              ┌─────────────┐
-                             │  SRV07-SQL  │
-                             │  (M5)       │
-                             │  xp_cmdshell│
-                             │  PrintSpoofer│
+                             │ SRV07-SQL   │
+                             │ (M5)        │
+                             │ xp_cmdshell │
+                             │ PrintSpoofer│
                              └──────┬──────┘
                                     │
                                     │ 5. RBCD (SRV07-SQL$ → DC02)
@@ -110,8 +110,8 @@
                              ┌─────────────┐
                              │    DC02     │
                              │   (M1)      │
-                             │  DCSync    │
-                             │  GAME OVER │
+                             │  DCSync     │
+                             │  GAME OVER  │
                              └─────────────┘
 ```
 
