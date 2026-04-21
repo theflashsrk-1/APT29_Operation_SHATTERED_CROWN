@@ -1,4 +1,4 @@
-- name: 'Scenario 2 - Delegation Nightmare: Silver Ticket Forgery for MSSQL and xp_cmdshell Execution (SRV07-SQL)'
+- name: 'APT29 - SHATTERED CROWN: Silver Ticket Forgery for MSSQL and xp_cmdshell Execution (SRV07-SQL)'
   description: >-
     Simulates abuse of a recovered service-account secret to target the SQL tier
     through Kerberos service-ticket forgery against the MSSQL service on SRV07-SQL.

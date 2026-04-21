@@ -1,4 +1,4 @@
-- name: 'Scenario 2 - Delegation Nightmare: Resource-Based Constrained Delegation (RBCD) Abuse for Domain Compromise (DC02)'
+- name: 'APT29 - SHATTERED CROWN: Resource-Based Constrained Delegation (RBCD) Abuse for Domain Compromise (DC02)'
   description: >-
     Represents the final privilege-escalation stage in which control of SRV07-SQL
     is used to exploit a misconfigured Active Directory ACL affecting the DC02

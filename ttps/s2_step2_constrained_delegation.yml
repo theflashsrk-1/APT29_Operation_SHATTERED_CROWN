@@ -1,4 +1,4 @@
-- name: 'Scenario 2 - Delegation Nightmare: S4U2Self and S4U2Proxy Constrained Delegation Abuse (SRV05-API)'
+- name: 'APT29 - SHATTERED CROWN: S4U2Self and S4U2Proxy Constrained Delegation Abuse (SRV05-API)'
   description: >-
     Represents operator validation of a constrained delegation pathway after
     obtaining control of the svc_web account. The step is intended to mirror abuse

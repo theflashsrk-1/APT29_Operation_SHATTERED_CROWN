@@ -1,4 +1,4 @@
-- name: 'Scenario 2 - Delegation Nightmare: WinRM Lateral Movement and LSASS Credential Dumping (SRV06-OPT)'
+- name: 'APT29 - SHATTERED CROWN: WinRM Lateral Movement and LSASS Credential Dumping (SRV06-OPT)'
   description: >-
     Models post-delegation credential access on SRV06-OPT by targeting a host
     expected to contain valuable service-account material in memory. In the intended
