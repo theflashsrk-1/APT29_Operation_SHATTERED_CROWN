@@ -1,4 +1,4 @@
-# APT29 SHATTERED CROWN — Active Directory Delegation Cyber Range
+# APT29 Operation SHATTERED CROWN — Active Directory Delegation Cyber Range
 
 **Classification:** UNCLASSIFIED // EXERCISE ONLY
 **Domain Theme:** Corporate Enterprise — Financial Services AD Infrastructure\
