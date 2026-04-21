@@ -3,7 +3,7 @@
 **Classification:** UNCLASSIFIED // EXERCISE ONLY
 **Domain Theme:** Corporate Enterprise — Financial Services AD Infrastructure\
 **Network:** cyberange.local (simulated)\
-**Platform:** Windows Server 2019 — OpenStack / QEMU-KVM\
+**Platform:** Windows Server 2019 — OpenStack / QEMU-KVM
 
 ---
 
