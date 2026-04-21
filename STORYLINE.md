@@ -2,11 +2,11 @@
 
 ## Intelligence Brief
 
-**Operation:** SHATTERED CROWN
-**Classification:** CONFIDENTIAL // EXERCISE ONLY
-**Issuing Authority:** Corporate Incident Response Division (CIRD)
-**Target Organization:** CybeRange Financial Services
-**Threat Actor:** APT29 / Midnight Blizzard (SVR-attributed)
+**Operation:** SHATTERED CROWN\
+**Classification:** UNCLASSIFIED // EXERCISE ONLY\
+**Issuing Authority:** Corporate Incident Response Division (CIRD)\
+**Target Organization:** CybeRange Financial Services\
+**Threat Actor:** APT29 / Midnight Blizzard (SVR-attributed)\
 **Date:** [EXERCISE DATE]
 
 ---
