@@ -4,9 +4,9 @@
 
 > **Instructions:**
 >
-> - Each scenario has **3 MCQs** (choose the single best answer) and **2 Static Answer** questions
+> - Each Rangehas **3 MCQs** (choose the single best answer) and **2 Static Answer** questions
 > - Questions are based on information gathered **during exploitation** — you must have solved the challenge to answer correctly
-> - Static Question 1 in each scenario is always the **Credential/Hash Submission**
+> - Static Question 1 in each Rangeis always the **Credential/Hash Submission**
 > - Answers are provided at the end of this document for facilitator use only
 
 ---
@@ -15,7 +15,7 @@
 
 ---
 
-# SCENARIO 1 — Broken Perimeter (M2: SRV04-WEB → DC02)
+# Range1 — Broken Perimeter (M2: SRV04-WEB → DC02)
 
 ### *Password Spray via Kerberos Pre-Authentication*
 
@@ -77,7 +77,7 @@
 
 ---
 
-# SCENARIO 2 — Broken Trust (M3: SRV05-API)
+# Range2 — Broken Trust (M3: SRV05-API)
 
 ### *S4U2Self / S4U2Proxy Constrained Delegation Abuse*
 
@@ -139,7 +139,7 @@
 
 ---
 
-# SCENARIO 3 — Silent Harvest (M4: SRV06-OPT)
+# Range3 — Silent Harvest (M4: SRV06-OPT)
 
 ### *Pass-the-Hash Lateral Movement + LSASS Credential Dump*
 
@@ -201,7 +201,7 @@
 
 ---
 
-# SCENARIO 4 — Phantom Ticket (M5: SRV07-SQL)
+# Range4 — Phantom Ticket (M5: SRV07-SQL)
 
 ### *Silver Ticket Forgery + MSSQL xp_cmdshell + PrintSpoofer*
 
@@ -263,7 +263,7 @@
 
 ---
 
-# SCENARIO 5 — Crown Fall (M1: DC02)
+# Range5 — Crown Fall (M1: DC02)
 
 ### *Resource-Based Constrained Delegation (RBCD) Abuse*
 
